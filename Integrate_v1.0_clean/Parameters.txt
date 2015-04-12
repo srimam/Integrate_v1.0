@@ -1,0 +1,38 @@
+###Input parameters for compare
+
+##Genome files (separate multiple files with commas)
+Genomic_sequences = 
+
+## Gff files (same order as genome files)
+GFF = 
+
+##Proteome files (same order as genome files)
+Proteomes = 
+
+##Four letter organism abbreviations for Orthomcl (same order as genome files)
+Abbr = 
+
+##Target organism
+Target = 
+
+##Length of IGR to use
+IGR_length = 500
+
+##Order of Background dist (0,1,2,3 etc)
+Order = 2
+
+##Motif match cutoff
+pvalue = 0.000001
+
+##GOA (gene ontology annotation can be obtained from ftp://ftp.ebi.ac.uk/pub/databases/GO/goa/proteomes)
+GOA = 
+
+##Expression
+Expression_data = 
+
+##Operons (can be obtained from microbes online: http://microbesonline.org/operons/OperonList.html)
+Operon_data = 
+
+##Mysql login
+Username = root
+Password = 

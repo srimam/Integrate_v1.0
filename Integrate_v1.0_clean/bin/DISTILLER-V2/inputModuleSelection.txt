@@ -1,0 +1,1 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% What should be outputted, and where%%%%%%%%%%%%%%%%%%%%%%%%%%%%%output file greedy cover:	Results/DISTILLER/DISTILLER_modules.txtnumber of greedy modules:	400data folder:	bin/DISTILLER-V2/dataFolder

@@ -1,0 +1,49 @@
+#!/bin/bash
+# Meme bash script
+cat Data/IGRs/Ecol_IGRs.txt Data/IGRs/Salm_IGRs.txt Data/IGRs/Efer_IGRs.txt Data/IGRs/Citr_IGRs.txt Data/IGRs/Ente_IGRs.txt Data/IGRs/Vibr_IGRs.txt Data/IGRs/Yers_IGRs.txt Data/IGRs/Kleb_IGRs.txt Data/IGRs/Cron_IGRs.txt Data/IGRs/Shig_IGRs.txt Data/IGRs/Erwi_IGRs.txt Data/IGRs/Pect_IGRs.txt Data/IGRs/Dick_IGRs.txt Data/IGRs/Pant_IGRs.txt > Data/IGRs/Combined_IGRs.txt
+fasta-get-markov -m 2 <Data/IGRs/Combined_IGRs.txt >Data/bg/Background_dist_2_order.txt
+fasta-get-markov -m 2 <Data/IGRs/Ecol_IGRs.txt >Data/bg/Background_dist_target_2_order.txt
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Ecol Data/Proteomes/NC_000913.faa 4
+mv Ecol.fasta Data/Proteomes/compliantFasta/Ecol.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Salm Data/Proteomes/NC_003198.faa 4
+mv Salm.fasta Data/Proteomes/compliantFasta/Salm.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Efer Data/Proteomes/NC_011740.faa 4
+mv Efer.fasta Data/Proteomes/compliantFasta/Efer.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Citr Data/Proteomes/NC_013716.faa 4
+mv Citr.fasta Data/Proteomes/compliantFasta/Citr.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Ente Data/Proteomes/NC_020181.faa 4
+mv Ente.fasta Data/Proteomes/compliantFasta/Ente.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Vibr Data/Proteomes/Vib_comb.faa 4
+mv Vibr.fasta Data/Proteomes/compliantFasta/Vibr.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Yers Data/Proteomes/NC_004088.faa 4
+mv Yers.fasta Data/Proteomes/compliantFasta/Yers.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Kleb Data/Proteomes/NC_022566.faa 4
+mv Kleb.fasta Data/Proteomes/compliantFasta/Kleb.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Cron Data/Proteomes/NC_009778.faa 4
+mv Cron.fasta Data/Proteomes/compliantFasta/Cron.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Shig Data/Proteomes/Shig_comb.faa 4
+mv Shig.fasta Data/Proteomes/compliantFasta/Shig.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Erwi Data/Proteomes/NC_017390.faa 4
+mv Erwi.fasta Data/Proteomes/compliantFasta/Erwi.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Pect Data/Proteomes/NC_013421.faa 4
+mv Pect.fasta Data/Proteomes/compliantFasta/Pect.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Dick Data/Proteomes/NC_014500.faa 4
+mv Dick.fasta Data/Proteomes/compliantFasta/Dick.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclAdjustFasta Pant Data/Proteomes/NC_017531.faa 4
+mv Pant.fasta Data/Proteomes/compliantFasta/Pant.fasta
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclFilterFasta Data/Proteomes/compliantFasta 10 20
+mv goodProteins.fasta Data/Proteomes/goodProteins.fasta
+mv poorProteins.fasta Data/Proteomes/poorProteins.fasta
+formatdb -i Data/Proteomes/goodProteins.fasta
+mv formatdb.log Data/Proteomes/formatdb.log
+blastall -i Data/Proteomes/goodProteins.fasta -d Data/Proteomes/goodProteins.fasta -p blastp -o Data/Proteomes/all_v_all_proteomes -v 100000 -b 100000 -F  'm S' -m 8 -e 1e-5
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclBlastParser Data/Proteomes/all_v_all_proteomes Data/Proteomes/compliantFasta > Data/Proteomes/SimilarSequences.txt
+echo "drop database orthomcl" | mysql -uroot -pManutd1983
+echo "create database orthomcl" | mysql -uroot -pManutd1983
+mysql -uroot -pManutd1983 orthomcl < bin/orthomclSoftware-v2.0.9/bin/orthomclInstallSchema.sql
+mysqlimport --verbose -uroot -pManutd1983 orthomcl Data/Proteomes/SimilarSequences.txt --local
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclPairs bin/orthomcl.config bin/orthomclSoftware-v2.0.9/orthomcl_pairs.log cleanup=yes
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclDumpPairsFiles bin/orthomcl.config
+mv mclInput Results/Miscellaneous/mclInput
+mcl Results/Miscellaneous/mclInput --abc -I 1.5 -o Results/Miscellaneous/mclOutput
+perl bin/orthomclSoftware-v2.0.9/bin/orthomclMclToGroups SI 1000 < Results/Miscellaneous/mclOutput > Results/Miscellaneous/Orthologous_groups.txt
